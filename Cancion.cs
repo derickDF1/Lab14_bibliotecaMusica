@@ -5,11 +5,10 @@ using System.Threading.Tasks;
 
 namespace Lab14_bibliotecaMusica
 {
-    public class Album
+    public class Cancion
     {
-        public string Titulo { get; set; }
+        public string Nombre { get; set; }
         public string Artista { get; set; }
-        public string[] Canciones { get; set; }
-        public DateTime FechaPublicacion { get; set; }
+        public string TiempoDuracion { get; set; }
     }
 }
