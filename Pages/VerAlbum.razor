@@ -3,7 +3,7 @@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager NavigationManager
 
-<h3>Álbum</h3>
+<h3>Agrear Álbumes</h3>
 
 <EditForm Model="@album">
     <div class="form-group">
@@ -67,7 +67,7 @@
                 <tr>
                     <td>@album.Titulo</td>
                     <td>@album.Artista</td>
-                    <td>@album.FechaPublicacion</td>
+                    <td>@album.FechaPublicacion.ToShortDateString()</td>
                     <td>@string.Join(", ", album.Canciones.Select(c => c.Nombre))</td>
                     <td>
                         <button class="btn btn-warning" @onclick="@(() => NavigationManager.NavigateTo($"/VerAlbum-editar/{album.Titulo}"))">Editar</button>

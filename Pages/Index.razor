@@ -1,6 +1,74 @@
 ﻿@page "/"
+@inject HttpClient Http
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 
-<h1>Biblioteca de musica</h1>
+<div class="container">
+    <header class="header">
+        <h1>BIBLIOTECA DE MÚSICA</h1>
+        <p>Bienvenido, puede navegar por el panel lateral</p>
+    </header>
+    <br />
+    <div class="instructions">
+        <p>Puede filtrar aquí de manera rápida cada artista y su respectiva discografía.</p>
+        <h3>Álbumes por Artista</h3>
+    </div>
 
-Bienvenido, puedes navegar por el panel lateral.
+    <div class="form-group">
+        <label for="Artista">Seleccionar Artista</label>
+        <select id="Artista" class="form-control" @onchange="FiltrarAlbumesPorArtista">
+            <option value="">Seleccionar Artista</option>
+            @foreach (var artista in artistas)
+            {
+                <option value="@artista.Nombre">@artista.Nombre</option>
+            }
+        </select>
+    </div>
 
+    @if (albumesFiltrados != null && albumesFiltrados.Count > 0)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Artista</th>
+                    <th>Fecha Publicación</th>
+                    <th>Canciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var album in albumesFiltrados)
+                {
+                    <tr>
+                        <td>@album.Titulo</td>
+                        <td>@album.Artista</td>
+                        <td>@album.FechaPublicacion.ToShortDateString()</td>
+                        <td>@string.Join(", ", album.Canciones.Select(c => c.Nombre))</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else if (!string.IsNullOrEmpty(artistaSeleccionado))
+    {
+        <p class="text-center text-muted">No hay álbumes para el artista seleccionado.</p>
+    }
+</div>
+
+@code {
+    private List<Album> albumes = new List<Album>();
+    private List<Album> albumesFiltrados = new List<Album>();
+    private List<Artista> artistas = new List<Artista>();
+    private string artistaSeleccionado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        albumes = await localStorage.GetItemAsync<List<Album>>("albumes") ?? new List<Album>();
+        artistas = await localStorage.GetItemAsync<List<Artista>>("artistas") ?? new List<Artista>();
+    }
+
+    private void FiltrarAlbumesPorArtista(ChangeEventArgs e)
+    {
+        artistaSeleccionado = e.Value.ToString();
+        albumesFiltrados = albumes.Where(a => a.Artista == artistaSeleccionado).ToList();
+    }
+}
