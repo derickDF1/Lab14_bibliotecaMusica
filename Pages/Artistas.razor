@@ -1,0 +1,68 @@
+﻿@page "/Artistas"
+@inject HttpClient Http
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager NavigationManager
+
+<h3>Artistas</h3>
+
+<EditForm Model="@artista">
+    <div class="form-group">
+        <label for="Nombre">Nombre del Artista</label>
+        <InputText id="Nombre" @bind-Value="artista.Nombre" class="form-control" />
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary" @onclick="@Guardar">Guardar</button>
+    </div>
+</EditForm>
+
+@if (artistas != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var artista in artistas)
+            {
+                <tr>
+                    <td>@artista.Nombre</td>
+                    <td>
+                        <button class="btn btn-warning"
+                                @onclick="@(() => NavigationManager.NavigateTo($"/Artistas-editar/{artista.Nombre}"))">
+                            Editar
+                        </button>
+                    </td>
+                    <td><button class="btn btn-danger" @onclick="@(() => BorrarArtista(artista.Nombre))">Eliminar</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Artista artista = new Artista();
+    List<Artista> artistas = new List<Artista>();
+
+    protected async Task Guardar()
+    {
+        artistas.Add(artista);
+        await localStorage.SetItemAsync("artistas", artistas);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        artistas = await localStorage.GetItemAsync<List<Artista>>("artistas");
+        if (artistas == null)
+            artistas = new List<Artista>();
+    }
+
+    protected async Task BorrarArtista(string nombre)
+    {
+        artistas.Remove(artistas.Find(a => a.Nombre == nombre));
+        await localStorage.SetItemAsync("artistas", artistas);
+    }
+}
+

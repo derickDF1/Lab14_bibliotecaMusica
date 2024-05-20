@@ -9,7 +9,15 @@ namespace Lab14_bibliotecaMusica
     {
         public string Titulo { get; set; }
         public string Artista { get; set; }
-        public string[] Canciones { get; set; }
+        public List<Cancion> Canciones { get; set; }
         public DateTime FechaPublicacion { get; set; }
+
+        public Album()
+        {
+            Titulo = string.Empty;
+            Artista = string.Empty;
+            Canciones = new List<Cancion>();
+            FechaPublicacion = DateTime.MinValue;
+        }
     }
 }

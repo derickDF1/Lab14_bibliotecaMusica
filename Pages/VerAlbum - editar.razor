@@ -1,0 +1,90 @@
+﻿@page "/VerAlbum-editar/{nombre}"
+@inject HttpClient Http
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager NavigationManager
+
+<h3>Editar Álbum</h3>
+
+<EditForm Model="@album">
+    <div class="form-group">
+        <label for="Titulo">Título del Álbum</label>
+        <InputText id="Titulo" @bind-Value="album.Titulo" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="Artista">Artista</label>
+        <select id="Artista" @bind="album.Artista" class="form-control">
+            @foreach (var artista in artistas)
+            {
+                <option value="@artista.Nombre">@artista.Nombre</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="FechaPublicacion">Fecha de Publicación</label>
+        <InputDate id="FechaPublicacion" @bind-Value="album.FechaPublicacion" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="Canciones">Canciones</label>
+        <select id="Canciones" @bind="cancionSeleccionada" class="form-control">
+            <option value="">Seleccionar Canción</option>
+            @foreach (var cancion in canciones)
+            {
+                <option value="@cancion.Nombre">@cancion.Nombre</option>
+            }
+        </select>
+        <button type="button" class="btn btn-secondary" @onclick="AgregarCancion">Agregar Canción</button>
+    </div>
+    <div>
+        <ul class="list-group">
+            @foreach (var cancion in album.Canciones)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    @cancion.Nombre
+                    <button class="btn btn-danger btn-sm" @onclick="@(() => EliminarCancion(cancion))">Eliminar</button>
+                </li>
+            }
+        </ul>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary" @onclick="@Guardar">Guardar</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public string nombre { get; set; }
+    private Album album = new Album();
+    private List<Album> albumes = new List<Album>();
+    private List<Artista> artistas = new List<Artista>();
+    private List<Cancion> canciones = new List<Cancion>();
+    private string cancionSeleccionada;
+
+    protected async Task Guardar()
+    {
+        await localStorage.SetItemAsync("albumes", albumes);
+        NavigationManager.NavigateTo("/Album");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        albumes = await localStorage.GetItemAsync<List<Album>>("albumes") ?? new List<Album>();
+        artistas = await localStorage.GetItemAsync<List<Artista>>("artistas") ?? new List<Artista>();
+        canciones = await localStorage.GetItemAsync<List<Cancion>>("canciones") ?? new List<Cancion>();
+
+        album = albumes.FirstOrDefault(c => c.Titulo == nombre);
+    }
+
+    private void AgregarCancion()
+    {
+        var cancion = canciones.FirstOrDefault(c => c.Nombre == cancionSeleccionada);
+        if (cancion != null && !album.Canciones.Any(c => c.Nombre == cancion.Nombre))
+        {
+            album.Canciones.Add(cancion);
+        }
+    }
+
+    private void EliminarCancion(Cancion cancion)
+    {
+        album.Canciones.Remove(cancion);
+    }
+}

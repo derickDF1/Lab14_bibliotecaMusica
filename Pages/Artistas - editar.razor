@@ -1,0 +1,41 @@
+﻿@page "/Artistas-editar/{nombre}"
+@inject HttpClient Http
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager NavigationManager
+
+<h3>Artistas</h3>
+
+<EditForm Model="@artista">
+    <div class="form-group">
+        <label for="Nombre">Nombre del Artista</label>
+        <InputText id="Nombre" @bind-Value="artista.Nombre" class="form-control" />
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary" @onclick="@Guardar">Guardar</button>
+    </div>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public string nombre { get; set; }
+    private Artista artista = new Artista();
+    List<Artista> artistas = new List<Artista>();
+
+    protected async Task Guardar()
+    {
+        await localStorage.SetItemAsync("artistas", artistas);
+
+        NavigationManager.NavigateTo("/Artistas");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        artistas = await localStorage.GetItemAsync<List<Artista>>("artistas");
+        if (artistas == null)
+            artistas = new List<Artista>();
+
+        artista = artistas.FirstOrDefault(c => c.Nombre == nombre);
+    }
+}
+
